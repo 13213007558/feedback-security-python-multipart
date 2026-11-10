@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+* Add `UPLOAD_ATOMIC` mode for untrusted uploads. With `UPLOAD_DIR` and `UPLOAD_KEEP_FILENAME=True`, each upload is
+  written to an exclusively owned temporary file and published to its final name only when `File.finalize()`
+  succeeds. Publication uses a no-clobber hard link, so an existing file, directory, or symbolic link is never
+  overwritten or followed and concurrent uploads with the same name cannot both succeed; conflicts raise
+  `FileConflictError`. File names must be single plain components. Failed spills, decodes, publications, and
+  `on_file` callbacks close the owned handle and remove every unpublished path, while a handed-off upload is left to
+  the caller.
+
 ## 0.0.33 (2026-10-31)
 
 * Drop Python 3.10 support [#329](https://github.com/Kludex/python-multipart/pull/329).

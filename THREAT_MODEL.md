@@ -21,6 +21,9 @@
 - CPU use stays proportional to the size of the input.
 - Uploaded files stay inside `UPLOAD_DIR`.
 - Temporary files are deleted when `UPLOAD_DELETE_TMP` is `True`.
+- With `UPLOAD_ATOMIC=True`, an in-progress upload is only visible under an exclusively owned temporary name; the
+  final name appears atomically when the upload completes, never overwrites or follows an existing entry, and failed
+  uploads leave no residue.
 
 ## What counts as a vulnerability
 
@@ -49,6 +52,14 @@ Report these as public issues if you think they are bugs.
   validation.
 - With `UPLOAD_KEEP_FILENAME=True`, an upload replaces any existing file with the same name. Give each user or
   request its own `UPLOAD_DIR`, or leave this option off.
+- `UPLOAD_ATOMIC=True` removes that replacement risk: it requires `UPLOAD_DIR` and `UPLOAD_KEEP_FILENAME=True`,
+  accepts only a single plain file name (no path separators, NUL bytes, dot directories, or absolute paths), and
+  publishes with a no-clobber hard link. A conflicting name raises `FileConflictError` and the existing entry is
+  never modified. The configured `UPLOAD_DIR` itself is still trusted; replacing the directory or its parent
+  components is out of scope.
+- With `UPLOAD_ATOMIC=True`, ownership of the published file transfers to your `on_file` callback only once it
+  returns normally. If the callback raises, the library deletes the just-published file; after a normal return,
+  cleanup (including closing the parser) never touches the file.
 
 ## Reporting
 

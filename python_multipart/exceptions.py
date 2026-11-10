@@ -32,3 +32,11 @@ class DecodeError(ParseError):
 
 class FileError(FormParserError, OSError):
     """Exception class for problems with the File class."""
+
+
+class FileConflictError(FileError):
+    """Raised when an atomic upload cannot be published because the final
+    name already exists (as a file, directory, or symbolic link).
+
+    The existing entry is never modified or replaced.
+    """
